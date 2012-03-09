@@ -221,7 +221,7 @@ var baseArrangement = [
 /**
  * Translate baseArrangement to fullArrangement(shapeArragement)
  */
-function arragementTest(num) {
+function suitsPattens(num) {
   var result;
   var index = num - 1;
     switch (num) {

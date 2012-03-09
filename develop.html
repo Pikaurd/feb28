@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="util.js"></script>
+    <script type="text/javascript" src="card_suits.js"></script>
+    <script type="text/javascript" src="card.js"></script>
+    <script type="text/javascript" src="manager.js"></script>
+    <script type="text/javascript" src="qunit-git.js"></script>
+    <link rel="stylesheet" href="qunit-git.css" type="text/css" />
+    <title>Developing</title>
+    <script type="application/javascript">
+      var d;
+      var canvas;
+      var ctx;
+      var manager;
+      var dummyDealing = {// 这个东西是从服务器给来的， 所以就瞎写一个
+                     "Heart":[1, 2, 3]
+                   , "Diamond": [4, 5, 6]
+                   , "Club":[1, 5, 9]
+                   , "Spade":[1, 2, 10]
+                   };
+      function init() {
+        canvas = document.getElementById("canvas");
+        if (canvas.getContext) {
+          ctx = canvas.getContext("2d");
+          canvas.onclick = clickEvent;
+
+          manager = new Manager(ctx, canvas.width);
+          manager.init(dummyDealing);
+          manager.deal();
+
+        }
+      }
+      
+      //---------------
+
+      test("collion test", function() {
+        var actual = collisonTest(new Area(100,0, 85, 100), new Pair(0,0));
+        equal(false, actual);
+
+        actual = collisonTest(new Area(0,0,85,100), new Pair(0,0));
+        equal(true, actual);
+
+        actual = collisonTest(new Area(0,0,85,100), new Pair(100,0));
+        equal(false, actual);
+
+        actual = collisonTest(new Area(0,0,85,100), new Pair(50,0));
+        equal(true, actual);
+
+        actual = collisonTest(new Area(0,0,85,100), new Pair(50,50));
+        equal(true, actual);
+
+        actual = collisonTest(new Area(0,100, 85, 100), new Pair(50,0));
+        equal(false, actual);
+
+        actual = collisonTest(new Area(0,0,85,100), new Pair(50, 120));
+        equal(false, actual);
+
+      });
+
+      //---------------
+
+    </script>
+    <style type="text/css">
+      canvas {
+        border: 1px solid #AAA;
+        background-image: url(desk.png);
+      }
+    </style>
+  </head>
+  <body onload="init();">
+    <canvas id="canvas" width="960" height="540"></canvas>
+    <!--
+    <button onclick="deal(ctx);">Deal</button>
+    <button onclick="dealFrom(ctx, dummyDealing);">Deal From</button>
+    -->
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">test markup, will be hidden</div>
+  </body>
+</html>

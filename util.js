@@ -89,7 +89,7 @@ function Area() {
   this.range = null;
   if (arguments.length > 3)
     this.range = new Pair(arguments[2], arguments[3]);
-  else if (arguments.length == 3) {
+  else if (arguments.length == 3) { //TODO maybe there are better way to implement
     var r = 2 * arguments[2];
     this.range = new Pair(r, r);
   } else {
