@@ -4,7 +4,8 @@
 var cardWidth = 85;
 function Manager(context, width) {
   // Properties
-  this.startPoint = new Pair(Math.floor(width/3), Math.floor(width / 16 * 9 / 3 * 2));
+  this.startPoint = new Pair(Math.floor(width/3), 
+                             Math.floor(width / 16 * 9 / 3 * 2));
   this.allCards = [null]; // holding all cards on the table, the first one to keep which one ready
   this.margin = 20; //TODO not implement
 
@@ -22,7 +23,7 @@ function Manager(context, width) {
   
   this.deal = function () {
     context.save();
-    context.clearRect(320, 355, 320, 150); // TODO no num
+    context.clearRect(315, 355, 320, 150); // TODO no num
     var ready = this.allCards[0];
 
     var count = 0; //Make sure x coordinate correct
@@ -32,8 +33,10 @@ function Manager(context, width) {
       if (ready == card)
         upOffset = 0;
       card.draw(context
-              , this.startPoint.fst + (count++) * this.margin, this.startPoint.snd + upOffset
-              , 5);
+                , this.startPoint.fst + (count++) * this.margin
+                , this.startPoint.snd + upOffset
+                , 5
+                );
     }
 
     context.restore();
@@ -60,18 +63,29 @@ function Manager(context, width) {
     return found;
   };
 
-  this.youTurn = function () { //出牌英语的不会啊…
+  this.produce = function () { //貌似 出牌 是produce
     var card = this.allCards[0]; // 起来的那张牌
     this.allCards[0] = null;//not necessary mark
     var index = this.allCards.slice(1).indexOf(card);
     if (index != -1) {
-      card.draw(context, 0, 0, 5);// 出了的那张的位置 FIXME we need 4 position
+      animate(context, card.position, new Pair(400, 100), card);
+      //card.draw(context, 0, 0, 5);// 出了的那张的位置 FIXME we need 4 position
       this.allCards.splice(index+1, 1);
     }
   };
 
   this.ready = function (whichReadyCardIndex) {
     this.allCards[0] = this.allCards[whichReadyCardIndex];
+  };
+
+  /**
+   * repaint whole canvas
+   */
+  this.repaint = function () {
+    context.save();
+    context.clearRect(0, 0, 960, 540);
+    this.deal();
+    context.restore();
   };
 }
 
@@ -85,7 +99,7 @@ function clickEvent(e) {
   if (whichCard != -1) //TODO consider change to another way
     manager.ready(whichCard);
   else //FIXME remove else
-    manager.youTurn();
+    manager.produce();
   
   manager.deal();    
 }
@@ -105,3 +119,33 @@ function collisonTest(area, point) {
 
   return xCT && yCT;
 }
+
+// ------------ Animation --------------
+var fps = 30;
+var refreshTime = Math.floor(1000 / fps);
+function animate(context, startPosition, target, card) {
+  //TODO 待完善吧…
+  var xStep = new IntAmender((startPosition.fst - target.fst) / fps);
+  var yStep = new IntAmender((startPosition.snd - target.snd) / fps);
+
+  var currentX = startPosition.fst;
+  var currentY = startPosition.snd;
+
+  var intervalID = setInterval(
+    function () {
+      //TODO out of bounds check method
+      currentX -= xStep.produce();
+      currentY -= yStep.produce();
+
+      card.draw(context, currentX, currentY, 5); 
+
+      if ((currentX - target.fst) <= 5 && (currentY - target.snd) <= 5) {
+        //FIXME another trick ^^^^^^^^
+        //console.log("cleared interval id:", intervalID);
+        clearInterval(intervalID);
+        manager.repaint();
+        card.draw(context, target.fst, target.snd, 5); 
+      }
+    }, refreshTime);
+}
+

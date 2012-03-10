@@ -70,15 +70,6 @@ function Pair(fst, snd) {
   this.snd = snd;
 }
 
-// ckeck odd
-function even(num) {
-  return num % 2 == 0;
-}
-
-function odd(num) {
-  return !even(num);
-}
-
 /**
  * Area(x, y, width, height) //rectangl
  * OR Area(x, y, radius) // circle
@@ -89,12 +80,53 @@ function Area() {
   this.range = null;
   if (arguments.length > 3)
     this.range = new Pair(arguments[2], arguments[3]);
-  else if (arguments.length == 3) { //TODO maybe there are better way to implement
+  else if (arguments.length == 3) { //TODO maybe there is a better way
     var r = 2 * arguments[2];
     this.range = new Pair(r, r);
   } else {
     this.position = arguments[0];
     this.range = arguments[1];
   }
+}
+
+/**
+ * A generator using given decimal to produce integer with amend
+ */
+function IntAmender(x) {
+  //this.integerPart = Math.round(x);
+  this.integerPart = parseInt(x);
+  this.decimalPart = x - this.integerPart;
+  this.amender = 0;
+
+  this.produce = function() {
+    this.amender += this.decimalPart;
+    var result = this.integerPart;
+    if (this.amender >= 1) {
+      this.amender  -= 1
+      result += 1;
+    }
+    if (this.amender <= -1) {
+      this.amender += 1;
+      result -= 1;
+    }
+    return result;
+  };
+}
+/**
+ * Calculate distance of two points
+ */
+function distance(pa, pb) {
+  var x = pa.fst - pb.fst;
+  var y = pa.snd - pb.snd;
+  return Math.sqrt(x*x + y*y);
+}
+
+// ckeck odd
+function even(num) {
+  return num % 2 == 0;
+}
+
+function odd(num) {
+  return !even(num);
 }
 // -- end --

@@ -15,10 +15,10 @@
       var ctx;
       var manager;
       var dummyDealing = {// 这个东西是从服务器给来的， 所以就瞎写一个
-                     "Heart":[1, 2, 3]
+                     "Heart":[2, 3, 1]
                    , "Diamond": [4, 5, 6]
-                   , "Club":[1, 5, 9]
-                   , "Spade":[1, 2, 10]
+                   , "Club":[5, 9, 1]
+                   , "Spade":[2, 10, 1]
                    };
       function init() {
         canvas = document.getElementById("canvas");
@@ -37,30 +37,102 @@
 
       test("collion test", function() {
         var actual = collisonTest(new Area(100,0, 85, 100), new Pair(0,0));
-        equal(false, actual);
+        equal(actual, false);
 
         actual = collisonTest(new Area(0,0,85,100), new Pair(0,0));
-        equal(true, actual);
+        equal(actual, true);
 
         actual = collisonTest(new Area(0,0,85,100), new Pair(100,0));
-        equal(false, actual);
+        equal(actual, false);
 
         actual = collisonTest(new Area(0,0,85,100), new Pair(50,0));
-        equal(true, actual);
+        equal(actual, true);
 
         actual = collisonTest(new Area(0,0,85,100), new Pair(50,50));
-        equal(true, actual);
+        equal(actual, true);
 
         actual = collisonTest(new Area(0,100, 85, 100), new Pair(50,0));
-        equal(false, actual);
+        equal(actual, false);
 
         actual = collisonTest(new Area(0,0,85,100), new Pair(50, 120));
-        equal(false, actual);
+        equal(actual, false);
 
       });
 
+      test("IntAmender test", function(){
+        var amender = new IntAmender(2.2);
+
+        var actual = amender.produce();
+        equal(actual, 2);
+
+        actual = amender.produce();
+        equal(actual, 2);
+        actual = amender.produce();
+        equal(actual, 2);
+        actual = amender.produce();
+        equal(actual, 2);
+        actual = amender.produce();
+        equal(actual, 3);
+
+        var amender3 = new IntAmender(2.8);
+        for (var i = 0; i < 4; i++)
+          amender3.produce();
+        actual = amender3.produce();
+        //amenderViewer(amender3, actual);
+        equal(actual, 2);// #6
+
+        actual = amender3.produce();
+        //amenderViewer(amender3, actual);
+        equal(actual, 3);// #7
+
+        actual = amender3.produce();
+        //amenderViewer(amender3, actual);
+        equal(actual, 3);// #8
+
+        actual = amender3.produce();
+        //amenderViewer(amender3, actual);
+        equal(actual, 3);// #9
+        
+        actual = amender3.produce();
+        //amenderViewer(amender3, actual);
+        equal(actual, 3);// #10
+
+        actual = amender3.produce();
+        //amenderViewer(amender3, actual);
+        equal(actual, 2);// #11
+        
+        var amender2 = new IntAmender(-2.2);
+        actual = amender2.produce();
+        //amenderViewer(amender2, actual);
+        equal(actual, -2);
+        
+        actual = amender2.produce();
+        //amenderViewer(amender2, actual);
+        equal(actual, -2);
+        
+        actual = amender2.produce();
+        //amenderViewer(amender2, actual);
+        equal(actual, -2);
+        
+        actual = amender2.produce();
+        //amenderViewer(amender2, actual);
+        equal(actual, -2);
+        
+        actual = amender2.produce();
+        //amenderViewer(amender2, actual);
+        equal(actual, -3);
+
+        actual = amender2.produce();
+        //amenderViewer(amender2, actual);
+        equal(actual, -2);
+      });
       //---------------
 
+      function amenderViewer(amender, integerPart) {
+        console.debug("Interger:", integerPart,
+                      "amender:", amender.amender,
+                      "decimal:", amender.decimalPart);
+      }
     </script>
     <style type="text/css">
       canvas {
