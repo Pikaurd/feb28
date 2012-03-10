@@ -131,6 +131,9 @@ function animate(context, startPosition, target, card) {
   var currentX = startPosition.fst;
   var currentY = startPosition.snd;
 
+  var xTolerance = xStep.produce() + 1;
+  var yTolerance = yStep.produce() + 1;
+
   var intervalID = setInterval(
     function () {
       //TODO out of bounds check method
@@ -139,7 +142,8 @@ function animate(context, startPosition, target, card) {
 
       card.draw(context, currentX, currentY, 5); 
 
-      if ((currentX - target.fst) <= 5 && (currentY - target.snd) <= 5) {
+      if ((currentX - target.fst) <= xTolerance 
+           && (currentY - target.snd) <= yTolerance) {
         //FIXME another trick ^^^^^^^^
         //console.log("cleared interval id:", intervalID);
         clearInterval(intervalID);
