@@ -131,8 +131,8 @@ function animate(context, startPosition, target, card) {
   var currentX = startPosition.fst;
   var currentY = startPosition.snd;
 
-  var xTolerance = xStep.produce() + 1;
-  var yTolerance = yStep.produce() + 1;
+  var xTolerance = xStep.produce() + 2;
+  var yTolerance = yStep.produce() + 2;
 
   var intervalID = setInterval(
     function () {
@@ -144,7 +144,6 @@ function animate(context, startPosition, target, card) {
 
       if ((currentX - target.fst) <= xTolerance 
            && (currentY - target.snd) <= yTolerance) {
-        //FIXME another trick ^^^^^^^^
         //console.log("cleared interval id:", intervalID);
         clearInterval(intervalID);
         manager.repaint();
