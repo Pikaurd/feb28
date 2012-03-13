@@ -7,7 +7,7 @@ function Manager(context, width) {
   this.startPoint = new Pair(Math.floor(width/3), 
                              Math.floor(width / 16 * 9 / 3 * 2));
   this.allCards = [null]; // holding all cards on the table, the first one to keep which one ready
-  this.margin = 20; //TODO not implement
+  var _margin = 20;
 
   // Methods
   this.init = function (whatToDeal) {
@@ -29,11 +29,11 @@ function Manager(context, width) {
     var count = 0; //Make sure x coordinate correct
     for (var i = 1; i < this.allCards.length; i++) { //FORLOOP
       var card = this.allCards[i];
-      var upOffset = this.margin;
+      var upOffset = _margin;
       if (ready == card)
         upOffset = 0;
       card.draw(context
-                , this.startPoint.fst + (count++) * this.margin
+                , this.startPoint.fst + (count++) * _margin
                 , this.startPoint.snd + upOffset
                 , 5
                 );
@@ -50,7 +50,7 @@ function Manager(context, width) {
     var height = Math.floor(cardWidth / 3 * 4);    
     for (var i = 1; i < this.allCards.length; i++) {// skip the first one FOORLOOP
       var position = this.allCards[i].position;
-      var ckeckedWidth = this.margin;
+      var ckeckedWidth = _margin;
 
       if (i == this.allCards.length - 1)
         ckeckedWidth = cardWidth;
@@ -105,6 +105,7 @@ function clickEvent(e) {
 }
 
 function collisonTest(area, point) {
+  /*
   var xCT = false;
   var yCT = false;
   // x test
@@ -118,6 +119,12 @@ function collisonTest(area, point) {
     yCT = true;
 
   return xCT && yCT;
+  */
+  
+  return point.fst >= area.position.fst &&
+         point.fst <= (area.range.fst + area.position.fst) &&
+         point.snd >= area.position.snd &&
+         point.snd <= (area.range.snd + area.position.snd);
 }
 
 // ------------ Animation --------------
@@ -131,8 +138,8 @@ function animate(context, startPosition, target, card) {
   var currentX = startPosition.fst;
   var currentY = startPosition.snd;
 
-  var xTolerance = xStep.produce() + 1;
-  var yTolerance = yStep.produce() + 1;
+  var xTolerance = xStep.produce() + 2;
+  var yTolerance = yStep.produce() + 2;
 
   var intervalID = setInterval(
     function () {

@@ -53,6 +53,21 @@ function roundedRect(context, x, y, r, width, height) {
 /**
  * String buffer
  */
+function StringBuilder() {
+  var buffer = [];
+
+  if (arguments[0])
+    buffer.push(arguments[0]);
+
+  this.append = function (s) {
+    buffer.push(s);
+  };
+
+  this.toString - function () {
+    return buffer.join("");
+  };
+}
+
 function StringBuffer(){
   this.buffer = [];
 }
@@ -93,20 +108,19 @@ function Area() {
  * A generator using given decimal to produce integer with amend
  */
 function IntAmender(x) {
-  //this.integerPart = Math.round(x);
-  this.integerPart = parseInt(x);
-  this.decimalPart = x - this.integerPart;
-  this.amender = 0;
+  var integerPart = parseInt(x);
+  var decimalPart = x - integerPart;
+  var amender = 0;
 
   this.produce = function() {
-    this.amender += this.decimalPart;
-    var result = this.integerPart;
-    if (this.amender >= 1) {
-      this.amender  -= 1
+    amender += decimalPart;
+    var result = integerPart;
+    if (amender >= 1) {
+      amender  -= 1
       result += 1;
     }
-    if (this.amender <= -1) {
-      this.amender += 1;
+    if (amender <= -1) {
+      amender += 1;
       result -= 1;
     }
     return result;
