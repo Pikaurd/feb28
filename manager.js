@@ -151,7 +151,6 @@ function animate(context, startPosition, target, card) {
 
       if ((currentX - target.fst) <= xTolerance 
            && (currentY - target.snd) <= yTolerance) {
-        //FIXME another trick ^^^^^^^^
         //console.log("cleared interval id:", intervalID);
         clearInterval(intervalID);
         manager.repaint();
