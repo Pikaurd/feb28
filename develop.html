@@ -14,12 +14,11 @@
       var canvas;
       var ctx;
       var manager;
-      var dummyDealing = {// 这个东西是从服务器给来的， 所以就瞎写一个
-                     "Heart":[2, 3, 1]
-                   , "Diamond": [4, 5, 6]
-                   , "Club":[5, 9, 1]
-                   , "Spade":[2, 10, 1]
-                   };
+      var dummyDealing = [1,2,3,4,5,6,7,8,9,10,11,12,13];
+      var d1 = [5, 11, 13, 19, 25, 26, 30, 31, 32, 33, 41, 44, 52]
+      var d2 = [6, 10, 16, 17, 23, 24, 27, 28, 35, 37, 45, 50, 51]
+      var d3 = [4, 9, 12, 14, 18, 20, 22, 29, 34, 38, 40, 42, 47]
+      var d4 = [1, 2, 3, 7, 8, 15, 21, 36, 39, 43, 46, 48, 49]
       function init() {
         canvas = document.getElementById("canvas");
         if (canvas.getContext) {

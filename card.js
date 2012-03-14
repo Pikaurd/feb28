@@ -7,24 +7,8 @@ function Card(num, width, suit) {
   this.width = width;
   this.height = Math.floor(width / 3 * 4);
   this.position = null;
-  this.color = function () {
-    var color = "somthing wrong";
-    switch (suit) {
-      case "Heart":
-      case "Diamond":
-        color = "red";
-      break;
-      case "Spade":
-      case "Club":
-        color = "black";
-      break;
-      default:
-        console.info("Opps, there is something wrong", suit);
-      break;
-    }
-    return color;
-  };
-  this.drawSuit = determineSuit(suit);
+  this.suit = suit;
+
   this.draw = function (context, x, y, r) {
     this.position = new Pair(x, y);
     context.save();
@@ -35,7 +19,7 @@ function Card(num, width, suit) {
     context.fill();
     
     // draw left side score and suit
-    drawSuitPattern(context, x + r, y + r, suitWidth, num, this.drawSuit);
+    drawSuitPattern(context, x + r, y + r, suitWidth, num, this.suit.draw);
     this.drawScoreAndSuit(context, x , y + 3*r, r);
 
     // draw another side
@@ -45,15 +29,17 @@ function Card(num, width, suit) {
     
     context.restore();
   };
+
   /**
    * draw a card num and suit on left edge
    */
   this.drawScoreAndSuit = function (context, x, y, offset) {
     context.save();
-    this.drawSuit(context, Math.floor(x + offset / 2), y , 12, 16);
+    // FIXME do NOT using magic number
+    this.suit.draw(context, Math.floor(x + offset / 2), y , 12, 16);
     var fontFamily = "17px 'Gill Sans Ultra Bold',sans-serif";//FIXME extra them
     context.font = fontFamily;
-    context.fillStyle = this.color();
+    context.fillStyle = this.suit.color;
     var scoreStr = num.toString();
     switch (num) {
       case 1:
@@ -101,24 +87,3 @@ function drawSuitPattern(context, x, y, suitWidth, num, drawSuit) {
   context.restore();
 }
 
-function determineSuit(suit) {
-  var func = null;
-  switch (suit) {
-    case "Heart":
-      func = drawHeart;
-    break;
-    case "Diamond":
-      func = drawDiamond;
-    break;
-    case "Spade":
-      func = drawSpade;
-    break;
-    case "Club":
-      func = drawClub;
-    break;
-    default:
-      console.info("[ERR-from determinSuit]Opps, there is something wrong", suit);
-    break;
-  }
-  return func;
-}

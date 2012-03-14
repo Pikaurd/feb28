@@ -6,29 +6,74 @@ function Manager(context, width) {
   // Properties
   this.startPoint = new Pair(Math.floor(width/3), 
                              Math.floor(width / 16 * 9 / 3 * 2));
-  this.allCards = [null]; // holding all cards on the table, the first one to keep which one ready
+  // holding all cards on the table, the first one to keep the ready one 
+  allCards = [null]; 
   var _margin = 20;
+  var thisTurnSuit = null;// make sure right suit to discard
 
   // Methods
   this.init = function (whatToDeal) {
-    var suits = ["Heart", "Diamond", "Spade", "Club"];
-    for (var i = 0; i < suits.length; i++) {//FORLOOP
-      var tmp = whatToDeal[suits[i]];
-      for (var j = 0; j < tmp.length; j++) {//FORLOOP
-        var card = new Card(tmp[j], cardWidth, suits[i]);
-        this.allCards.push(card);
+  //FIXME  code monster…
+    var hearts = [];
+    var diamonds = [];
+    var spades = [];
+    var clubs = [];
+
+    // test
+    var hAce, dAce, sAce, cAce;
+    // tset
+    for (var c in whatToDeal) {
+      var tmp = whatToDeal[c];
+      var score = tmp % 13;
+      if (score == 0)
+        score = 13;
+
+      switch (Math.floor((tmp - 1) / 13)) {
+        case 0:
+          if (score == 1)
+            hAce = new Card(score, cardWidth, Suits.Heart);
+          else
+            hearts.push(new Card(score, cardWidth, Suits.Heart));
+          break;
+        case 1:
+          if (score == 1)
+            dAce = new Card(score, cardWidth, Suits.Diamond);
+          else
+            diamonds.push(new Card(score, cardWidth, Suits.Diamond));
+          break;
+        case 2:
+          if (score == 1)
+            sAce = new Card(score, cardWidth, Suits.Spade);
+          else
+            spades.push(new Card(score, cardWidth, Suits.Spade));
+          break;
+        case 3:
+          if (score == 1)
+            cAce = new Card(score, cardWidth, Suits.Club);
+          else
+            clubs.push(new Card(score, cardWidth, Suits.Club));
+          break;
+        default:
+          console.error("Opps, we got a", Math.floor(tmp / 13), tmp);
+        break;
       }
     }
+    if (hAce) hearts.push(hAce);
+    if (dAce) diamonds.push(dAce);
+    if (sAce) spades.push(sAce);
+    if (cAce) clubs.push(cAce);
+    allCards = allCards.concat(hearts).concat(spades).concat(diamonds).concat(clubs);
+
   };
   
   this.deal = function () {
     context.save();
-    context.clearRect(315, 355, 320, 150); // TODO no num
-    var ready = this.allCards[0];
+    context.clearRect(315, 355, 340, 150); // TODO no num
+    var ready = allCards[0];
 
     var count = 0; //Make sure x coordinate correct
-    for (var i = 1; i < this.allCards.length; i++) { //FORLOOP
-      var card = this.allCards[i];
+    for (var i = 1; i < allCards.length; i++) { //FORLOOP
+      var card = allCards[i];
       var upOffset = _margin;
       if (ready == card)
         upOffset = 0;
@@ -48,11 +93,11 @@ function Manager(context, width) {
   this.inCheck = function (point) {
     var found = -1;
     var height = Math.floor(cardWidth / 3 * 4);    
-    for (var i = 1; i < this.allCards.length; i++) {// skip the first one FOORLOOP
-      var position = this.allCards[i].position;
+    for (var i = 1; i < allCards.length; i++) {// skip the first one FOORLOOP
+      var position = allCards[i].position;
       var ckeckedWidth = _margin;
 
-      if (i == this.allCards.length - 1)
+      if (i == allCards.length - 1)
         ckeckedWidth = cardWidth;
         
       area = new Area(position, new Pair(ckeckedWidth, height));
@@ -63,19 +108,19 @@ function Manager(context, width) {
     return found;
   };
 
-  this.produce = function () { //貌似 出牌 是produce
-    var card = this.allCards[0]; // 起来的那张牌
-    this.allCards[0] = null;//not necessary mark
-    var index = this.allCards.slice(1).indexOf(card);
+  this.discard = function () { //貌似 出牌 是discard
+    var card = allCards[0]; // 起来的那张牌
+    allCards[0] = null;//not necessary mark
+    var index = allCards.slice(1).indexOf(card);
     if (index != -1) {
       animate(context, card.position, new Pair(400, 100), card);
       //card.draw(context, 0, 0, 5);// 出了的那张的位置 FIXME we need 4 position
-      this.allCards.splice(index+1, 1);
+      allCards.splice(index+1, 1);
     }
   };
 
   this.ready = function (whichReadyCardIndex) {
-    this.allCards[0] = this.allCards[whichReadyCardIndex];
+    allCards[0] = allCards[whichReadyCardIndex];
   };
 
   /**
@@ -99,29 +144,13 @@ function clickEvent(e) {
   if (whichCard != -1) //TODO consider change to another way
     manager.ready(whichCard);
   else //FIXME remove else
-    manager.produce();
+    manager.discard();
   
   manager.deal();    
 }
 
 function collisonTest(area, point) {
-  /*
-  var xCT = false;
-  var yCT = false;
-  // x test
-  var tmpX = point.fst - area.position.fst;
-  if (tmpX >= 0 && area.range.fst - tmpX >= 0)
-    xCT = true;
-
-  // y test
-  var tmpY = point.snd - area.position.snd;
-  if (tmpY >= 0 && area.range.snd - tmpY >= 0)
-    yCT = true;
-
-  return xCT && yCT;
-  */
-  
-  return point.fst >= area.position.fst &&
+    return point.fst >= area.position.fst &&
          point.fst <= (area.range.fst + area.position.fst) &&
          point.snd >= area.position.snd &&
          point.snd <= (area.range.snd + area.position.snd);

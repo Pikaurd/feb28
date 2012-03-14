@@ -253,6 +253,12 @@ function suitsPattens(num) {
         result = batchCoordinateReverse(basePair, 5, basePair);
       break;
 
+      case 11:
+      case 12:
+      case 13:
+        result = [];
+      break;
+
       default:
         console.info(num, "Opps, there must be someting wrong");
       break;
@@ -272,6 +278,15 @@ function batchCoordinateReverse(container, times, basePairs) {
   return container;
 }
 
+/**
+ * Suits
+ */
+var Suits = {
+    Heart: {name:"Heart", color:"red", draw:drawHeart}
+  , Diamond: {name:"Diamond", color:"red", draw:drawDiamond}
+  , Spade: {name:"Spade", color:"black", draw:drawSpade}
+  , Club: {name:"Club", color:"black", draw:drawClub}
+};
 
 // testing ---------
 // for testing
