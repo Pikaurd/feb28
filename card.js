@@ -71,8 +71,8 @@ function drawSuitPattern(context, x, y, suitWidth, num, drawSuit) {
   context.save();
   context.translate(x, y);
   var suitHeight = Math.floor(suitWidth / 3 * 4);
-  var width = suitWidth * 4;  
-  var height = Math.floor(width / 5 * 8);
+  //var width = suitWidth * 4;  
+  //var height = Math.floor(width / 5 * 8);
   var patterns = suitsPattens(num);
   var xMargin = Math.floor(suitWidth / 6 * 5);
   var yMargin = Math.floor(suitHeight * 0.65);

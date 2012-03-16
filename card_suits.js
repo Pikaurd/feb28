@@ -224,6 +224,7 @@ var baseArrangement = [
 function suitsPattens(num) {
   var result;
   var index = num - 1;
+  var basePair;
     switch (num) {
       case 1: 
         result = baseArrangement[index].slice();
