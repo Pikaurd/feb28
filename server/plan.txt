@@ -1,0 +1,30 @@
+2012-03-19 12:01:45
+     #6 现在无法记录结果, 也无法算分(没有全局记录) 不过#2可以知道最后谁拿了桌面上的牌
+[ok] #1 需要决定顺序, 在player1出完后该谁出
+[ok] #2 4个player都出完后要判断下次该谁出
+[ok] #3 需要一个东西来记录都出了什么了? 然后进行对比 CardList
+[ok] #4 花色怎么办呢? 弄个类来判断区间么? 
+        |- Heart: [1, 13]
+         - Diamond: [14, 26]
+         - Spade: [27, 39]
+         - Club: [40, 52]   这样么?
+         |- 写个Max(a, b, c,d)吧
+[ok] #5 Dealer找个method在发牌后检查梅花2(41),在哪个玩家手里, 找到后让那
+        |-  个玩家成为currentTurnPlayer
+    
+    流程:
+    |- Dealer 发牌
+    |- -> 决定谁先出(spade2)
+    |- -> 轮流出牌 (who or what decide(record) "now everyone discarded")
+        |- dealer记录现在出了几张了, 4张后调用max来判断谁最大
+    |- -> 4个人出完以后决定谁的最大
+    |- -> 下一轮那个人先出
+
+2012-03-16 22:29:01
+HTTPServer接到请求
+-> manager (server side)
+-> 分配一个局id(dealer id), 这个dealer id(hashmap?)由4个玩家共享
+-> dealer 持有4个玩家的player id用来标识各个玩家(hashmap?)
+
+有一个专门收发客户端信息的handler, 判断request类型, 转发给各个类
+(也应该是Manager的一个功能)
