@@ -144,3 +144,145 @@ function odd(num) {
   return !even(num);
 }
 // -- end --
+
+/*
+ * Shuffle an array
+ * http://en.wikipedia.org/wiki/Fisher-Yates_shuffle
+ */
+function shuffle(a) {
+  /*
+   * for i from n - 1 downto 1 do
+   *   j <- random integer with 0 <= j <= i
+   *   exchange a[j] and a[i]
+   */
+  for (var i = a.length - 1; i >= 0; i--) {
+    var j = getRandomInt(0, i);
+    var t = a[i];
+    a[i] = a[j];
+    a[j] = t;
+  }
+  return a;
+}
+
+/*
+ * generate a array using given range
+ * 1 arguments => 0 to end
+ * 2 arguments => start to end
+ * 3 arguments => start to end with step
+ */
+function range() {
+  var end, start, step;
+  var result = new Array();
+  switch (arguments.length) {
+    case 1:
+      end = arguments[0];
+      start = 0;
+      step = 1;
+    break;
+    case 2:
+      start = arguments[0];
+      end = arguments[1];
+      step = 1;
+    break;
+    case 3:
+      start = arguments[0];
+      end = arguments[1];
+      step = arguments[2];
+    break;
+    default:
+      console.error("illegle parameter count");
+      return new Array();
+  }
+
+  // error check
+  if (step < 0)  return [];
+  
+  if (start < end) {
+    while (end - start > 0) {
+      result.push(start);
+      start += step;
+    }
+  } else {
+    while (start - end > 0) {
+      result.push(start);
+      start -= step;
+    }
+  }
+
+  return result;
+}
+
+/*
+ * Randoms
+ * from https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Math/random
+ */
+function gerRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+/**
+ * Hashtable
+ */
+function HashTable() {
+  this.length = 0;
+  this.items = new Array();
+  for (var i = 0; i < arguments.length; i += 2) {
+    if (typeof (arguments[i + 1]) != 'undefined') {
+      this.items[arguments[i]] = arguments[i + 1];
+      this.length++;
+    }
+  }
+
+  this.removeItem = function (in_key) {
+    var tmp_previous;
+    if (typeof (this.items[in_key]) != 'undefined') {
+      this.length--;
+      var tmp_previous = this.items[in_key];
+      delete this.items[in_key];
+    }
+
+    return tmp_previous;
+  }
+
+  this.getItem = function (in_key) {
+    return this.items[in_key];
+  }
+
+  this.setItem = function (in_key, in_value) {
+    var tmp_previous;
+    if (typeof (in_value) != 'undefined') {
+      if (typeof (this.items[in_key]) == 'undefined') {
+        this.length++;
+      } else {
+        tmp_previous = this.items[in_key];
+      }
+
+      this.items[in_key] = in_value;
+    }
+
+    return tmp_previous;
+  }
+
+  this.hasItem = function (in_key) {
+    return typeof (this.items[in_key]) != 'undefined';
+  }
+
+  this.clear = function () {
+    for (var i in this.items) {
+      delete this.items[i];
+    }
+
+    this.length = 0;
+  }
+}
+
+/**
+ * assert
+ */
+function assert(b, msg) {
+  if (!b) console.error("assertion error", msg);
+}

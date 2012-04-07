@@ -10,13 +10,15 @@ function LogicalManager() {
   //constructor
   var players = new Array();
   var allCards = shuffle(range(52));
-  var that = this;
   var currentPlayer = null;
+  var recorder = null;
 
   var playerQueue;
   var interactive = false; // communicate with manager.js
+  var uiManager = null;
 
   var _count = 4;
+  var that = this;
 
   // public property
   this.player;
@@ -29,7 +31,8 @@ function LogicalManager() {
     if (first > 3 || first < 0)
       console.debug(allCards);
     playerQueue.setFirst(players[first]);
-    isPlayerToDiscard();
+    //isPlayerToDiscard();
+    discardClubDeuce(ClubDeuce);
   }
 
   function isPlayerToDiscard() {
@@ -42,8 +45,42 @@ function LogicalManager() {
     }
   }
 
+  function discardClubDeuce() {
+    currentPlayer = playerQueue.next();
+    console.debug("who discard:", currentPlayer.name);
+    discard(ClubDeuce);
+  }
+
+  /*
+   * 出牌
+   * 该CPU出就出, 该玩家出转移控制权
+   */
+  function discard() {
+    var whichCard = arguments[0];
+    console.debug("[D] currentPlayer:", currentPlayer);
+    if (currentPlayer == that.player) {
+      if (whichCard != 39)
+        console.error("Auto discard!!", whichCard);
+
+      uiManager.playerDiscard(whichCard);
+      console.debug("Player discard", whichCard);
+      console.info("You have not control");
+    } else {
+    //  console.error("1");
+    //  console.info("CPU discard", whichCard);
+    //  FIXME 位置
+      uiManager.cpuDiscard(new Card(whichCard, 85), players.indexOf(currentPlayer));
+    }
+    currentPlayer = playerQueue.next();
+
+    // record
+    recorder.record(currentPlayer, whichCard);
+
+    console.debug("[D] currentPlayer:", currentPlayer);
+  }
+
   // public methods
-  this.init = function() {
+  this.init = function(uimgr) {
     players.push(new CPU(this.getCards()));
     players.push(new CPU(this.getCards()));
     players.push(new CPU(this.getCards()));
@@ -51,7 +88,16 @@ function LogicalManager() {
     players.push(this.player);
     //console.log("print player in init", this.player);
     playerQueue = new PlayerQueue(players);
+
+    //init recoder
+    recorder = new Recoder(players);
+    //console.debug("recorder init", recorder.itmes, players);
+    uiManager = uimgr;
+  };
+
+  this.run = function () {
     determinFirstPlayer();
+    //FIXME auto discard CPU
   };
 
   this.getCards = function () {
@@ -60,33 +106,21 @@ function LogicalManager() {
     }
   };
   
-  /*
-   * 出牌
-   * 该CPU出就出, 该玩家出转移控制权
-   */
-  //this.discard = function () {
-  function discard() {
-    var whichCard = arguments[0];
-    if (!interactive) {
-      if (currentPlayer == this.player) {
-        console.error("Auto discard!!");
-        //TODO 出牌
-
-        console.debug("Player discard", whichCard);
-        console.info("You have not control");
-      } else {
-        console.info("CPU discard", whichCard);
-      }
-    } else console.log("manager.js have this control");
-  };
 
   /*
    * 通过manager与之交互, player出牌
    */
   this.playerDiscard = function (card) {
+    if (currentPlayer != this.player) {
+      console.error("You can NOT discard"); return ;
+    }
     interactive = false;
     discard(card);
+    //uiManager.deal();
   };
+
+  // functions for debug
+  this.discardD = discard;
 }
 
 function Player(name, cards) {
@@ -126,3 +160,32 @@ function PlayerQueue(ps) {
   };
 }
 
+
+/**
+ * Recoder: to record players discarded card
+ */
+function Recoder(ps) {
+  var records = new HashTable();
+  constructor(ps);
+
+  // private
+  function constructor(ps) {
+    for (var p in ps) {
+      var key = ps[p].name;
+      records.setItem(key, new Array());
+    }
+    assert(records.length == 4, ps);
+  }
+
+
+  // public
+  this.record = function (who, card) {
+    records.getItem(who.name, card);
+  };
+
+  this.xxx = function () {
+    return recoder.items;
+  }
+}
+
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

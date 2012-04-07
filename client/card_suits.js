@@ -221,47 +221,49 @@ var baseArrangement = [
 /**
  * Translate baseArrangement to fullArrangement(shapeArragement)
  */
-function suitsPattens(num) {
+function suitsPattens(rank) {
   var result;
-  var index = num - 1;
+  var index = rank;
   var basePair;
-    switch (num) {
-      case 1: 
-        result = baseArrangement[index].slice();
-      break;
-      case 2: // pattern 1
-      case 3: // pattern 2
+    //switch (rank - 2) {
+    switch (index) {
+      case 0: // pattern 1
+      case 1: // pattern 2
         basePair = baseArrangement[index].slice();
         result = batchCoordinateReverse(basePair, 1, basePair);
       break;
-      case 4: // pattern 3
-      case 5: // pattern 4
-      case 6: // pattern 5
-      case 7: // pattern 6
+      case 2: // pattern 3
+      case 3: // pattern 4
+      case 4: // pattern 5
+      case 5: // pattern 6
         basePair = baseArrangement[index].slice();
         result = batchCoordinateReverse(basePair, 2, basePair);
       break;
-      case 8: // pattern 6
+      case 6: // pattern 6
         basePair = baseArrangement[6].slice(); 
         result = batchCoordinateReverse(basePair, 3, basePair);
       break;
-      case 9: // pattern 7
+      case 7: // pattern 7
         basePair = baseArrangement[7].slice();
         result = batchCoordinateReverse(basePair, 4, basePair);
       break;
-      case 10: // pattern 7
+      case 8: // pattern 7
         basePair = baseArrangement[7].slice(); 
         result = batchCoordinateReverse(basePair, 5, basePair);
       break;
 
+      case 9:
+      case 10:
       case 11:
-      case 12:
-      case 13:
         result = [];
       break;
 
+      case 12: 
+        result = baseArrangement[0].slice();
+      break;
+
       default:
-        console.info(num, "Opps, there must be someting wrong");
+        console.info(rank, "Opps, there must be someting wrong");
       break;
     
   }
@@ -283,10 +285,10 @@ function batchCoordinateReverse(container, times, basePairs) {
  * Suits
  */
 var Suits = {
-    Heart: {name:"Heart", color:"red", draw:drawHeart}
-  , Diamond: {name:"Diamond", color:"red", draw:drawDiamond}
-  , Spade: {name:"Spade", color:"black", draw:drawSpade}
-  , Club: {name:"Club", color:"black", draw:drawClub}
+    Heart: {name:"Heart", color:"red", draw:drawHeart, index:0}
+  , Diamond: {name:"Diamond", color:"red", draw:drawDiamond, index:1}
+  , Spade: {name:"Spade", color:"black", draw:drawSpade, index:2}
+  , Club: {name:"Club", color:"black", draw:drawClub, index:3}
 };
 
 // testing ---------
