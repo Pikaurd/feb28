@@ -21,10 +21,10 @@ function Card() {
         this.suit = Suits.Heart;
         break;
       case 1:
-        this.suit = Suits.Spade;
+        this.suit = Suits.Diamond;
         break;
       case 2:
-        this.suit = Suits.Diamond;
+        this.suit = Suits.Spade;
         break;
       case 3:
         this.suit = Suits.Club;

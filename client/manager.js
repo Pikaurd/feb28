@@ -91,16 +91,17 @@ function Manager(context, width) {
     var index = playerCards.slice(1).indexOf(card);
     if (index != -1 && isLegitimate(card)) {
       playerCards.splice(index+1, 1);
-      discard(card, 400, 100, 5);
+      discard(card, 438, 200, 5);//XXX magic position
       if (!arguments[0])
         logicalManager.playerDiscard(card.getNum());
       this.deal();
     }
   };
 
-  this.cpuDiscard = function (card, positionIndex) {
+  this.cpuDiscard = function (card, position) {
     console.debug("[D] cpuDiscard:", card);
-    discard(card, positionIndex * 100, 0, 5);
+
+    discard(new Card(card, 85), position.fst, position.snd, 5);
   };
 
 

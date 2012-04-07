@@ -15,4 +15,7 @@ function haveSuit(suit, cards) {
 /**
  * Rule of game "Gongzhu"
  */
-
+function Rule() {
+  var currentSuit = null;
+  var players = null;
+}
