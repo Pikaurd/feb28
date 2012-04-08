@@ -9,6 +9,7 @@
  */
 var ClubDeuce = 39;
 var cpuIndex = 0;
+var ReturnState = {OK:true, FAILD:false};
 function LogicalManager() {
   //constructor
   var players = new Array();
@@ -17,10 +18,10 @@ function LogicalManager() {
   var recorder = null;
 
   var playerQueue;
-  var interactive = false; // communicate with manager.js
+  //var interactive = false; // communicate with manager.js
   var uiManager = null;
 
-  var currentTurnSuit = null;
+  var currentTurnSuit = 3;
 
   var _count = 4;
   var that = this;
@@ -43,7 +44,7 @@ function LogicalManager() {
   function isPlayerToDiscard() {
     currentPlayer = playerQueue.next();
     if (currentPlayer == that.player) {
-      interactive = true;
+      //interactive = true;
       console.info("You have control");
     } else { //cpu 出牌
       discard(1);//FIXME cpu 出牌
@@ -58,11 +59,12 @@ function LogicalManager() {
 
   function changeTurnSuit(card) {
     var suit = null;
-    console.info("is next turn", recorder.isNextTurn());
-    if (!recorder.isNextTurn())
-      suit = Math.floor(card / 13);
-    currentTurnSuit = suit;
-    console.info("current suit is:   ", currentTurnSuit);
+    console.log("[changeTurnSuit]is next turn", recorder.isNextTurn());
+    if (currentTurnSuit == null)
+      currentTurnSuit = Math.floor(card / 13);
+    if (recorder.isNextTurn())
+      currentTurnSuit = null;
+    console.info("[changeTurnSuit]current suit is:   ", currentTurnSuit);
   }
 
   /**
@@ -70,6 +72,15 @@ function LogicalManager() {
    * if not pass throw an exception
    */
   function checkSuit(num) {
+    // XXX double invoke >discard< >canDiscard<
+    //var noMoreCardWithCurrentTurnSuit = false;
+    var t = currentPlayer.cards.filter(function (x){
+      return x >= currentTurnSuit * 13 && x < currentTurnSuit*13 + 13;
+    });
+
+    if (t.length == 0) return; //当前花色出完了
+    console.debug("whom", currentPlayer.name, "current cards", currentPlayer.cards, "noMore", t);
+
     if (currentTurnSuit != null) {
       var lowerBound = currentTurnSuit * 13;
       var upperBound = lowerBound + 13;
@@ -77,10 +88,9 @@ function LogicalManager() {
         throw {
             name: "Suit not match error"
           , level: "Show Stopper"
-          , massage: "Suit not match, please offer correct card"
+          , message: "Suit not match, please offer correct card"
         };
       }
-      console.log("l", lowerBound, "u", upperBound, "num", num);
     }
   }
 
@@ -89,32 +99,51 @@ function LogicalManager() {
    * 出牌
    * 该CPU出就出, 该玩家出转移控制权
    */
-  function discard() {//TODO refactory
-    var whichCard = arguments[0];
+  function discard(whichCard) {//TODO refactory
+    try {
+      console.debug("[D] currentPlayer:", currentPlayer.name);
+      if (currentPlayer == that.player) {
+        checkSuit(whichCard);//假设CPU不会出不符合规范的牌
+        if (whichCard != 39)
+          console.error("Auto discard!!", whichCard);
 
-    checkSuit(whichCard);  
+        uiManager.playerDiscard(whichCard);
+        //console.debug("Player discard", whichCard);
+        console.info("You have not control");
+      } else {
 
+        if (whichCard == ClubDeuce)
+          whichCard = currentPlayer.discard(whichCard);
+        else
+          whichCard = currentPlayer.discard(currentTurnSuit);
 
-    console.debug("[D] currentPlayer:", currentPlayer);
-    if (currentPlayer == that.player) {
-      if (whichCard != 39)
-        console.error("Auto discard!!", whichCard);
+        uiManager.cpuDiscard(whichCard, currentPlayer.position);
+      }
 
-      uiManager.playerDiscard(whichCard);
-      //console.debug("Player discard", whichCard);
-      console.info("You have not control");
-    } else {
-      //  FIXME 位置
-      uiManager.cpuDiscard(whichCard, currentPlayer.position);
+      // record
+      recorder.record(currentPlayer, whichCard);
+      console.log("[Rec]:", currentPlayer.name, "d:", whichCard);
+
+      determinNextPlayer(); // change to next one
+      changeTurnSuit(whichCard);
+
+    } catch (e) {
+      console.error(e.message);
+      return ReturnState.FAILD;
+    }
+
+    console.debug("[D] next Player:", currentPlayer.name);
+    return ReturnState.OK;
+  }
+
+  /**
+   * While a player discarded determin whom is next
+   */
+  function determinNextPlayer() {
+    if (recorder.isNextTurn()) {
+      playerQueue.setFirst(recorder.nextFirst(currentTurnSuit));
     }
     currentPlayer = playerQueue.next();
-
-    // record
-    recorder.record(currentPlayer, whichCard);
-
-    changeTurnSuit(whichCard);
-
-    console.debug("[D] currentPlayer:", currentPlayer);
   }
 
   // public methods
@@ -127,15 +156,17 @@ function LogicalManager() {
     //console.log("print player in init", this.player);
     playerQueue = new PlayerQueue(players);
 
-    //init recoder
-    recorder = new Recoder(players);
+    //init recorder
+    recorder = new Recorder(players);
     //console.debug("recorder init", recorder.itmes, players);
     uiManager = uimgr;
   };
 
   this.run = function () {
     determinFirstPlayer();
+
     //FIXME auto discard CPU
+    ptRun();
   };
 
   this.getCards = function () {
@@ -149,18 +180,47 @@ function LogicalManager() {
    * 通过manager与之交互, player出牌
    */
   this.playerDiscard = function (card) {
-    if (currentPlayer != this.player) {
-      console.error("You can NOT discard");
-      return ;
+    if (discard(card) == ReturnState.OK) {
+      var index = this.player.cards.indexOf(card);
+      this.player.cards.splice(index,1);
     }
-    interactive = false;
-    discard(card);
-    //uiManager.deal();
   };
+
+  /**
+   * 检测是否可以出牌
+   */
+  this.canDiscard = function (cardnum) {
+    var can = ReturnState.FAILD;
+    if (currentPlayer == this.player) {
+      try {
+        can = ReturnState.OK;
+        checkSuit(cardnum);
+      } catch (e) {
+        can = ReturnState.FAILD;
+        console.error(e.message);
+      }
+    }
+    return can;
+  }
+
 
   // functions for debug
   this.rec = function () {return recorder;};
   this.discardD = discard;
+  this.tRun = ptRun;
+
+  function ptRun() {
+    if (currentPlayer == that.player) {
+      console.log("You have control!!!");
+      return;
+    }
+    console.log("-*-*- RUN -*-*-")
+
+    discard();
+    // loop
+    setTimeout(ptRun, 1000);
+
+  };
 }
 
 function Player(name, cards) {
@@ -181,8 +241,43 @@ function CPU(cards, position) {
   this.position = position;
 
   this.discard = function () {
-    var suit = arguments[0];
-    return cards[0];
+    if (arguments[0] == ClubDeuce) {
+      var index = this.cards.indexOf(ClubDeuce);
+      this.cards.splice(index,1);
+      return ClubDeuce;
+    }
+
+    if (this.cards.length == 0) 
+      throw {
+          name: "no more cards"
+      };
+
+    var filter = function (x) {return x >= suit && x < suit + 13;};
+
+    console.debug("what cpu cards are", this.cards, "suit", arguments[0]);
+    var suit = arguments[0] * 13;
+    if (arguments[0] == null)
+      suit = getRandomInt(0, 3) * 13;
+    console.log("suit change", suit);
+
+    
+    var cs =this.cards.filter(filter);
+    console.debug("after filter", cs);
+
+    if (cs.length == 0) {
+      console.log("No more cards with suit", suit, "all I have is", this.cards);
+      cs = this.cards;
+    }
+
+    var cardNum = cs[0];
+    //delete the discarded one
+    var index = this.cards.indexOf(cardNum);
+    //console.debug("before splice", this.cards, "index", index);
+    this.cards.splice(index,1);
+    //console.debug("what i splice", this.cards.splice(index,1));
+    //console.debug("after splice", this.cards);
+    console.debug("-->what cpu discard", cardNum);
+    return cardNum;
   };
 }
 
@@ -208,17 +303,19 @@ function PlayerQueue(ps) {
 
 
 /**
- * Recoder: to record players discarded card
+ * Recorder: to record players discarded card
  */
-function Recoder(ps) {
+function Recorder(ps) {
   var records = new HashTable();
   var sum = 0; // sum of discarded cards
+  var keys = new Array();
   constructor(ps);
 
   // private
   function constructor(ps) {
     for (var p in ps) {
       var key = ps[p].name;
+      keys.push(ps[p]);
       records.setItem(key, new Array());
     }
     assert(records.length == 4, ps);
@@ -227,10 +324,8 @@ function Recoder(ps) {
 
   // public
   this.record = function (who, card) {
-    //var cards = records.getItem(who.name);
-    //cards.push(card);
-    //console.log("record", cards);
     sum++;
+    console.debug("who", who.name, "with", card);
     records.getItem(who.name).push(card);
   };
 
@@ -241,9 +336,34 @@ function Recoder(ps) {
     return sum % 4 == 0;
   };
 
-  this.xxx = function () {
-    return records.items;
+  /**
+   * 本轮出完后谁下一轮先出(同花色情况下点数最大)
+   */
+  this.nextFirst = function (lastTurnSuit) {
+    if (this.isNextTurn()) {
+      var index = Math.floor(sum / 4) - 1;
+
+      var max = -1;
+      var whom = null;
+      for (var i = 0; i < records.length; i++) {
+        var t = (records.getItem(keys[i].name))[index];
+        console.debug("Name:", keys[i].name, "with", t);
+        if (t > max && matchGivenSuit(t, lastTurnSuit)) {
+          max = t;
+          whom = keys[i];
+        }
+      }
+      console.info("Next turn first is", whom.name);
+      return whom;
+    }
+    return records.getItem(keys[0]);
   }
 }
 
+function matchGivenSuit(cardNum, suit) {
+  if (suit > 3 || suit < 0) throw {name:"suit num error"};
+  var lowerBound = suit * 13;
+  var upperBound = lowerBound + 13;
+  return cardNum >= lowerBound && cardNum < upperBound;
+}
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_

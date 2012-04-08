@@ -89,19 +89,23 @@ function Manager(context, width) {
   this.playerDiscard = function () {
     var card = playerCards[0]; // 起来的那张牌
     var index = playerCards.slice(1).indexOf(card);
-    if (index != -1 && isLegitimate(card)) {
-      playerCards.splice(index+1, 1);
-      discard(card, 438, 200, 5);//XXX magic position
-      if (!arguments[0])
-        logicalManager.playerDiscard(card.getNum());
-      this.deal();
+    if (index != -1) {
+      var canDiscard = logicalManager.canDiscard(card.getNum());
+      if (isLegitimate(card) && canDiscard == ReturnState.OK) {
+        playerCards.splice(index+1, 1);
+        discard(card, 438, 200, 5);//XXX magic position
+        if (!arguments[0])
+          logicalManager.playerDiscard(card.getNum());
+        this.deal();
+        setTimeout(logicalManager.tRun, 1000);
+      }
     }
   };
 
   this.cpuDiscard = function (card, position) {
     console.debug("[D] cpuDiscard:", card);
 
-    discard(new Card(card, 85), position.fst, position.snd, 5);
+    discard(new Card(card, cardWidth), position.fst, position.snd, 5);
   };
 
 
