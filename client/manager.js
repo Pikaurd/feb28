@@ -11,8 +11,6 @@ function Manager(context, width) {
   var _margin = 20;
   var thisTurnSuit = null;// make sure right suit to discard
 
-  var discardRuls = new Array();
-
   // --- private Methods ---
   function compare(a, b) {
     return a - b;
@@ -31,17 +29,24 @@ function Manager(context, width) {
     return num >=0 && num < 52;
   }
 
+  function drawCardBackground() {
+    context.save();
+    context.drawImage(back, 0, 0, 300, 300, 317.5, 10, 325, 100);
+    context.drawImage(back, 300, 0, 300, 290, 60, 170, 120,160 );
+    context.drawImage(back, 0, 300, 300, 300, 780, 170, 120, 160);
+    context.restore();
+  };
+
   // --- public methods ---
   this.init = function (ranks) {
     playerCards = [null];
-    var cards = new Array();
     for (var r in ranks.sort(compare)) {
       var card = new Card(ranks[r], cardWidth);
-      cards.push(card);
       playerCards.push(card);
       if (ranks[r] == 39) 
         playerCards[0] = card;
     }
+    drawCardBackground();
   };
   
   this.deal = function () {
@@ -71,7 +76,7 @@ function Manager(context, width) {
   this.inCheck = function (point) {
     var found = -1;
     var height = Math.floor(cardWidth / 3 * 4);    
-    for (var i = 1; i < playerCards.length; i++) {// skip the first one FOORLOOP
+    for (var i = 1; i < playerCards.length; i++) {// skip the first one
       var position = playerCards[i].position;
       var ckeckedWidth = _margin;
 
@@ -119,7 +124,8 @@ function Manager(context, width) {
    */
   this.repaint = function () {
     context.save();
-    context.clearRect(0, 0, 960, 540);
+    //context.clearRect(0, 0, 960, 540);
+    context.clearRect(300, 125, 400, 410);
     this.deal();
     context.restore();
   };

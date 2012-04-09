@@ -52,13 +52,13 @@ function Card() {
         break;
       case 9:
         score = "J";
-        break;
+		break;
       case 10:
         score = "Q";
-        break;
+		break;
       case 11:
         score = "K";
-        break;
+		break;
       case 12:
         score = "A";
         break;
@@ -97,13 +97,13 @@ function Card() {
     context.fill();
     
     // draw left side score and suit
-    drawSuitPattern(context, x + r, y + r, suitWidth, rank, this.suit.draw);
-    this.drawScoreAndSuit(context, x , y + 3*r, r);
+    drawSuitPattern(context, x + r, y + r, suitWidth, rank, this.suit);
+    this.drawScoreAndSuit(context, x , y + 3*r, r,suitWidth);
 
     // draw another side
     context.translate(x + width, y + height);
     context.rotate(Math.PI);
-    this.drawScoreAndSuit(context, 0, 3*r, r);
+    this.drawScoreAndSuit(context, 0, 3*r, r,suitWidth);
     
     context.restore();
   };
@@ -111,14 +111,14 @@ function Card() {
   /**
    * draw a card num and suit on left edge
    */
-  this.drawScoreAndSuit = function (context, x, y, offset) {
+  this.drawScoreAndSuit = function (context, x, y, offset,suitWidth) {
     context.save();
     // FIXME do NOT using magic number
-    this.suit.draw(context, Math.floor(x + offset / 2), y , 12, 16);
-    var fontFamily = "17px 'Gill Sans Ultra Bold',sans-serif";//FIXME extra them
+    this.suit.draw(context, Math.floor(x + offset / 2), y+suitWidth-17 , suitWidth-5, suitWidth-1);
+    var fontFamily = suitWidth+"px 'Gill Sans Ultra Bold',sans-serif";//FIXME extra them
     context.font = fontFamily;
     context.fillStyle = this.suit.color;
-    context.fillText(this.getScore(), x, y);
+    context.fillText(this.getScore(), x, y+suitWidth-17);
     context.restore();
   };
 }
@@ -126,13 +126,14 @@ function Card() {
 /**
  * draw suit using pattens
  */
-function drawSuitPattern(context, x, y, suitWidth, num, drawSuit) {
+function drawSuitPattern(context, x, y, suitWidth, num, suit) {
   context.save();
   context.translate(x, y);
+  var drawSuit=suit.draw;
   var suitHeight = Math.floor(suitWidth / 3 * 4);
   //var width = suitWidth * 4;  
   //var height = Math.floor(width / 5 * 8);
-  var patterns = suitsPattens(num);
+  var patterns = suitsPattens(context,num,suit,suitWidth-7,0,suitWidth);
   var xMargin = Math.floor(suitWidth / 6 * 5);
   var yMargin = Math.floor(suitHeight * 0.65);
   for (var i = 0; i < patterns.length; i++) {

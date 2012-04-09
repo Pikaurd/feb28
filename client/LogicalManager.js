@@ -104,8 +104,11 @@ function LogicalManager() {
       console.debug("[D] currentPlayer:", currentPlayer.name);
       if (currentPlayer == that.player) {
         checkSuit(whichCard);//假设CPU不会出不符合规范的牌
+
+        /*
         if (whichCard != 39)
           console.error("Auto discard!!", whichCard);
+        */
 
         uiManager.playerDiscard(whichCard);
         //console.debug("Player discard", whichCard);
@@ -141,9 +144,14 @@ function LogicalManager() {
    */
   function determinNextPlayer() {
     if (recorder.isNextTurn()) {
+      setTimeout(clearDiscardedCardOnDesk, 1000);
       playerQueue.setFirst(recorder.nextFirst(currentTurnSuit));
     }
     currentPlayer = playerQueue.next();
+  }
+
+  function clearDiscardedCardOnDesk() {
+    uiManager.repaint();
   }
 
   // public methods

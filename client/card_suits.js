@@ -221,22 +221,22 @@ var baseArrangement = [
 /**
  * Translate baseArrangement to fullArrangement(shapeArragement)
  */
-function suitsPattens(rank) {
+function suitsPattens(context,rank,suit,x,y,suitWidth) {
   var result;
   var index = rank;
   var basePair;
     //switch (rank - 2) {
     switch (index) {
-      case 0: // pattern 1
-      case 1: // pattern 2
-        basePair = baseArrangement[index].slice();
+      case 0: // pattern 2
+        basePair = baseArrangement[1].slice();
         result = batchCoordinateReverse(basePair, 1, basePair);
       break;
+	  case 1: // pattern 2
       case 2: // pattern 3
       case 3: // pattern 4
       case 4: // pattern 5
       case 5: // pattern 6
-        basePair = baseArrangement[index].slice();
+        basePair = baseArrangement[index+1].slice();
         result = batchCoordinateReverse(basePair, 2, basePair);
       break;
       case 6: // pattern 6
@@ -256,6 +256,12 @@ function suitsPattens(rank) {
       case 10:
       case 11:
         result = [];
+        var imgX = (index - 9) * 70;
+        var imgY = suit.index * 110;
+        context.drawImage(
+                           img, imgX, imgY, 70, 110
+                         , x, y, suitWidth * 3 + 5, suitWidth * 6
+                         );
       break;
 
       case 12: 
